@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head>
-<script>window.MAPLE_REPORT_URL='/api/report';window.MAPLE_BUILD='20cd805';</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script>window.MAPLE_REPORT_URL='/api/report';window.MAPLE_BUILD='54b5eac';</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>The Fall in Maple</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5692,9 +5692,53 @@ function plainRoom(I,B,def,o){
 function storyAct(I,x,z,r,label,act,cond,y=0){I.acts.push({x,y,z,r,label,act,cond})}
 function chalkTex(lines){return canvasTex(512,256,(x)=>{gouache(x,512,256,'#2f4a3a');x.fillStyle='#f6eedc';x.textAlign='left';x.font='34px "Patrick Hand", cursive';lines.forEach((l,i)=>x.fillText(l,24,52+i*48));x.strokeStyle='#8a6a4a';x.lineWidth=14;x.strokeRect(0,0,512,256)})}
 const SEAT_Y=.4;
+/* ---- Room 6B, dressed: a tester found it sad and empty. Now it's a real middle-school classroom
+   on the last afternoon before fall break: classmates, kids' drawings, paper leaves and pumpkins,
+   books and backpacks, a fish tank, a flag, sun through the windows. ---- */
+function classDressing(I,B,R){const P=['#c8433a','#e0a83e','#4e8a86','#7d5a78','#6f8fa8','#cf6f52','#5f9a5a','#f1d9c4'];const nr=m=>{m.userData.noRelief=1;return m};
+  for(const W of [R.n,R.s,R.w,R.e])for(const m of (W.ms||[]))if(m.material)nr(m.material);
+  const paper=(w,h,fn)=>canvasTex(w,h,fn);
+  // kids' drawings on the cork boards: "MY MAPLE END"
+  const cork=(title,seed)=>paper(384,256,x=>{gouache(x,384,256,'#c79a62');x.fillStyle='#2b1f2e';x.font='800 30px Grandstander, cursive';x.textAlign='center';x.fillText(title,192,36);
+    const R2=mulberry32(seed);for(let k=0;k<6;k++){const px=22+(k%3)*120+R2()*10,py=52+Math.floor(k/3)*96+R2()*8;x.save();x.translate(px+50,py+40);x.rotate((R2()-.5)*.18);x.fillStyle=['#fff8e8','#fff3a0','#d8eef4','#fde0e0'][k%4];x.fillRect(-50,-40,100,82);
+      x.lineWidth=4;x.strokeStyle=P[(k*3)%P.length];x.beginPath();if(k%3===0){x.moveTo(-30,25);x.lineTo(-30,-10);x.lineTo(0,-30);x.lineTo(30,-10);x.lineTo(30,25);x.closePath()}else if(k%3===1){x.arc(0,0,22,0,6.28);x.moveTo(-40,30);x.lineTo(40,30)}else{x.moveTo(-36,20);x.quadraticCurveTo(0,-40,36,20)}x.stroke();
+      x.fillStyle='#c8433a';x.beginPath();x.arc(0,-36,5,0,6.28);x.fill();x.restore()}});
+  B.decal(R.s,-3.8,2.3,3.2,2.1,cork('MY MAPLE END',11));B.decal(R.s,3.8,2.3,3.2,2.1,cork('OUR FALL',23));
+  // alphabet strip above the board, and a big US map
+  B.decal(R.n,0,4.05,11,.5,paper(1024,48,x=>{for(let k=0;k<26;k++){x.fillStyle=P[k%P.length];x.fillRect(k*39.4+2,2,36,44);x.fillStyle='#fff8e8';x.font='800 30px Grandstander, cursive';x.textAlign='center';x.fillText('ABCDEFGHIJKLMNOPQRSTUVWXYZ'[k],k*39.4+20,36)}}));
+  B.decal(R.n,-4.6,2.6,1.9,1.3,paper(256,176,x=>{x.fillStyle='#bfe0ea';x.fillRect(0,0,256,176);x.fillStyle='#e9c46a';x.beginPath();x.moveTo(20,50);x.lineTo(90,30);x.lineTo(200,40);x.lineTo(236,70);x.lineTo(214,110);x.lineTo(196,150);x.lineTo(150,124);x.lineTo(80,128);x.lineTo(30,96);x.closePath();x.fill();x.strokeStyle='#2b1f2e';x.lineWidth=3;x.stroke();
+    x.fillStyle='#c8433a';x.beginPath();x.arc(206,64,5,0,6.28);x.fill();x.fillStyle='#2b1f2e';x.font='800 18px Grandstander, cursive';x.fillText('U.S.A.',100,90);x.lineWidth=6;x.strokeStyle='#6b4a3a';x.strokeRect(3,3,250,170)}));
+  // paper leaves strung across the ceiling, paper pumpkins in the windows
+  const leafM=P.slice(0,4).map(c=>toon(c));
+  for(const [z,sag] of [[-4.5,.5],[-1,.6],[2.5,.5]]){const pts=[];for(let k=0;k<=24;k++){const f=k/24;pts.push(new THREE.Vector3(-5.6+f*11.2,4.32-Math.sin(f*Math.PI)*sag,z))}I.S.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:'#6b4a3a'})))}
+  for(const [z,sag] of [[-4.5,.5],[-1,.6],[2.5,.5]])for(let k=0;k<13;k++){const f=k/12,x=-5.6+f*11.2,y=4.25-Math.sin(f*Math.PI)*sag;const lf=M(new THREE.CircleGeometry(.17,5),leafM[(k+Math.round(z))%4],x,y,z,.02,I.S);lf.position.y-=.16;lf.rotation.set(.25*Math.sin(k),(k%2?.4:-.4),.5*Math.cos(k*1.3));lf.material.side=THREE.DoubleSide}
+  for(const u of [-2,2.5]){B.decal(R.w,u,1.95,.7,.7,paper(96,96,x=>{x.fillStyle='#e07a2a';x.beginPath();x.ellipse(48,54,40,34,0,0,6.28);x.fill();x.strokeStyle='#2b1f2e';x.lineWidth=4;x.stroke();x.fillStyle='#2b1f2e';x.beginPath();x.moveTo(30,44);x.lineTo(40,56);x.lineTo(22,56);x.fill();x.beginPath();x.moveTo(66,44);x.lineTo(74,56);x.lineTo(56,56);x.fill();x.fillRect(30,68,36,6);x.fillStyle='#5f9a5a';x.fillRect(44,10,8,14)}),{off:.02})}
+  // sunlight falling through the windows onto the floor
+  for(const z of [-2,2.5]){const sm=new THREE.MeshBasicMaterial({color:'#ffd27a',transparent:true,opacity:.28,depthWrite:false,blending:THREE.AdditiveBlending});const sp=new THREE.Mesh(new THREE.PlaneGeometry(2.6,1.9),sm);sp.rotation.x=-Math.PI/2;sp.rotation.z=.35;sp.position.set(-4.4,.03,z+.4);I.S.add(sp)}
+  // teacher's desk: an apple, a mug, a real pumpkin, a stack of papers
+  B.cyl(.13,.13,.22,toon('#c8433a'),-3.4,1,-6.5,{seg:10});B.cyl(.1,.09,.2,toon('#4e8a86'),-2.6,1,-6.8,{seg:8});
+  {const pk=M(new THREE.SphereGeometry(.32,12,10),toon('#e07a2a'),-3.9,1.24,-6.7,.04,I.S);pk.scale.y=.78;M(new THREE.CylinderGeometry(.04,.05,.14,5),toon('#5f7a3a'),-3.9,1.55,-6.7,.02,I.S)}
+  B.box(.6,.12,.45,toon('#fff8e8'),-3,1,-6.35,{block:false,ol:.03});
+  // books, pencils and lunchboxes on the kids' desks, backpacks by the chairs
+  const R3=mulberry32(61);for(const [x,z] of I.desks){const nb=1+Math.floor(R3()*3);for(let k=0;k<nb;k++)B.box(.5,.07,.38,toon(pick(P)),x-.35+R3()*.2,.75+k*.07,z-.1+R3()*.1,{block:false,ol:.025}).rotation.y=(R3()-.5)*.6;
+    B.box(.36,.03,.04,toon('#e0a83e'),x+.35,.76,z+.15,{block:false,ol:.01}).rotation.y=R3()*2;
+    if(R3()<.7){const bp=B.box(.42,.5,.24,toon(pick(P)),x+.62,0,z+1.05,{block:false,ol:.04});bp.rotation.y=(R3()-.5)*.8}}
+  // a bookcase full of colour, a globe, a fish tank, a plant, the flag
+  B.box(.5,1.6,2.4,toon('#7a5a3a'),5.6,0,2.6);for(let r=0;r<3;r++)for(let k=0;k<9;k++)if(R3()<.85)B.box(.32,.38+R3()*.12,.2,toon(pick(P)),5.42,.12+r*.52,1.6+k*.24,{block:false,ol:.02});
+  B.cyl(.06,.1,.3,toon('#3d3446'),5.5,1.6,3.3,{seg:8});{const gl=M(new THREE.SphereGeometry(.28,14,10),toon('#6f8fa8'),5.5,2.18,3.3,.03,I.S);gl.rotation.z=.4}
+  {const tk=new THREE.Mesh(new THREE.BoxGeometry(.5,.45,1.1),new THREE.MeshBasicMaterial({color:'#7fd0d8',transparent:true,opacity:.55}));tk.position.set(5.55,1.83,1.95);I.S.add(tk);M(new THREE.BoxGeometry(.54,.06,1.14),toon('#3d3446'),5.55,2.08,1.95,.02,I.S);
+    for(const [dz,c] of [[-.25,'#ff9a3a'],[.2,'#ffd23f']]){const fsh=M(new THREE.SphereGeometry(.07,8,6),toon(c),5.5,1.85,1.95+dz,.01,I.S);fsh.scale.set(.6,.7,1.3)}}
+  B.cyl(.28,.22,.5,toon('#c27c3a'),5.3,0,5.3,{block:true});for(let k=0;k<6;k++){const lf=M(new THREE.SphereGeometry(.28,8,6),toon(k%2?'#5f9a5a':'#4f8a4a'),5.3+Math.cos(k)*.22,.75+(k%3)*.18,5.3+Math.sin(k)*.22,.03,I.S);lf.scale.set(1,.7,1)}
+  M(new THREE.CylinderGeometry(.03,.03,2.6,6),toon('#c9a24a'),-5.5,2.2,-7.4,.01,I.S).rotation.z=.25;{const fl=paper(96,64,x=>{for(let k=0;k<7;k++){x.fillStyle=k%2?'#fff8e8':'#c8433a';x.fillRect(0,k*9.2,96,9.2)}x.fillStyle='#2f4f8a';x.fillRect(0,0,40,32)});const f=new THREE.Mesh(new THREE.PlaneGeometry(.9,.6),new THREE.MeshBasicMaterial({map:fl,side:THREE.DoubleSide}));f.position.set(-5.05,3.1,-7.4);f.rotation.set(0,.4,.25);I.S.add(f)}
+  // ceiling lights
+  B.pend(-3,4.4,-2,.4,'#f6eedc');B.pend(3,4.4,-2,.4,'#f6eedc');
+  // classmates in the empty seats (only during class)
+  // (the middle front seat stays empty: the class camera looks over it at the board)
+  const looks=[{style:'puffs',col:'#2b1f2e',top:'#e0a83e'},{style:'crew',col:'#6b4a3a',top:'#5f9a5a'},{style:'bob',col:'#a34a26',top:'#6f8fa8'}];
+  I.mates=[];[[-3.4,-1.7],[3.4,-1.7],[3.4,3.5]].forEach(([x,z],k)=>{const L=looks[k];const C=putRig(I,ttoon(880+k*13,'hill',{kid:true,hair:{style:L.style,col:L.col},top:L.top}),x,SEAT_Y,z,Math.PI);I.mates.push(C)})}
 function inClassNow(){return (G.day===0&&!G.flags.p_class)||(G.day===10&&!G.flags.e_class)}
 SHOP_BUILD.school=(I,B,def)=>{
-  const R=plainRoom(I,B,def,{x0:-6,x1:6,z0:-8,z1:6,wall:'#e8d9b4',wallOpt:{pat:'stripe',pc:'rgba(43,31,46,.06)',wain:'#7a5a3a',wh:.32},floorT:T_floor('wood','#a07a52'),exitLabel:'Out to the school gate',spawn:[1.6,2.6],
+  const R=plainRoom(I,B,def,{x0:-6,x1:6,z0:-8,z1:6,wall:'#f3dc9a',wallOpt:{pat:'none',wain:'#4e8a86',wh:.3},floorT:T_floor('wood','#b98a5a'),lampCol:'#fff0c8',exitLabel:'Out to the school gate',spawn:[1.6,2.6],
     cams:[{p:[0,5.4,7.6],t:[.4,0],l:[0,1.4,-3],aim:.5,fov:50},{p:[4.6,2.4,-6],l:[-1,1.2,2],fov:56,dutch:-.06},{p:[-5,3.2,4.4],l:[1,1.2,-3],fov:56}]});
   {const ex=I.acts.find(a=>a.label==='Out to the school gate');if(ex)ex.cond=()=>!((G.day===0&&!G.flags.p_class)||(G.day===10&&!G.flags.e_class))}
   B.decal(R.n,0,2.5,7,2.6,chalkTex(['FALL BREAK!  Oct 23 – Nov 1','Homework (just one!):','  one page about a place in','  Maple End that matters to you.']));
@@ -5707,8 +5751,10 @@ SHOP_BUILD.school=(I,B,def)=>{
   I.cast={petrakis:putRig(I,ttoon(77,'downtown',{kid:false,hair:{style:'bun',col:'#3d2a24'},top:'#7d5a78',pants:'#3d3446',mood:'happy',skirt:{col:'#3d3446',len:.95,flare:.1}}),-1.2,0,-6.2,0),
     danny:putRig(I,makeDannyRig(),-3.4,SEAT_Y,.9,Math.PI),maya:putRig(I,makeMayaRig(),0,SEAT_Y,.9,Math.PI),oliver:putRig(I,makeOliverRig(),3.4,SEAT_Y,.9,Math.PI),lena:putRig(I,makeLenaRig(),-3.4,SEAT_Y,3.5,Math.PI)};
   I.tick=(t)=>{const cls=inClassNow();for(const k in I.cast){const C=I.cast[k];C.anim(k!=='petrakis'&&cls?'seated':'idle',t,{force:true})}
+    if(I.mates)for(const C of I.mates){C.g.visible=cls;if(cls)C.anim('seated',t,{force:true})}
     const kg=I.kid.g;if(cls){kg.position.set(0,SEAT_Y,3.5);kg.rotation.y=Math.PI;I.kid.anim('seated',t,{force:true});I.wasSeat=true}else if(I.wasSeat){I.wasSeat=false;kg.position.set(1.6,0,4.6)}
     schoolTick(I,t)};
+  classDressing(I,B,R);
   storyAct(I,-1.2,-4.8,1.8,'Talk to Ms Petrakis',()=>talkPetrakis(I));
   storyAct(I,0,-6.9,1.6,'Read the board',()=>startDialog({npc:null,lines:[{k:'"Homework (just one!): one page about a place in Maple End that matters to you."'},{k:'(She underlined "just one" three times.)'}]}));
 };
@@ -7560,7 +7606,7 @@ function reliefBake(tx){if(RELIEF.baked.has(tx))return;RELIEF.baked.add(tx);cons
       if(f<.55)f=.55;if(f>1.35)f=1.35;const j=i*4;d[j]=Math.min(255,d[j]*f);d[j+1]=Math.min(255,d[j+1]*f);d[j+2]=Math.min(255,d[j+2]*f)}
     c.putImageData(id,0,0);tx.needsUpdate=true}catch(e){}}
 function reliefMat(m,o){if(!m||RELIEF.done.has(m))return;RELIEF.done.add(m);
-  if(!m.isMeshToonMaterial||!m.map||m.userData.popBase)return;reliefBake(m.map)}
+  if(!m.isMeshToonMaterial||!m.map||m.userData.popBase||m.userData.noRelief)return;reliefBake(m.map)}
 function reliefScene(root){if(!RELIEF.on||!root)return;root.traverse(o=>{if(!o.isMesh||o.isSkinnedMesh)return;let p=o;while(p){if(p.userData&&p.userData.rig)return;p=p.parent}
   const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms)reliefMat(m,o)})}
 function buildBlock(B){const n0=city.S.children.length;buildBlock0(B);reliefScene(B.g);for(let i=n0;i<city.S.children.length;i++)reliefScene(city.S.children[i])}
